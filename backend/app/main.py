@@ -10,6 +10,7 @@ from backend.app.domains.challenges.router import router as challenges_router
 from backend.app.domains.telemetry.router import router as telemetry_router
 from backend.app.domains.payments.router import router as payments_router
 from backend.app.domains.ai_agent.router import router as coach_router
+from backend.app.domains.chat.router import router as chat_router
 
 # Setup Logging
 logging.basicConfig(level=logging.INFO)
@@ -37,6 +38,7 @@ app.include_router(challenges_router, prefix="/api/v1")
 app.include_router(telemetry_router, prefix="/api/v1")
 app.include_router(payments_router, prefix="/api/v1")
 app.include_router(coach_router, prefix="/api/v1")
+app.include_router(chat_router, prefix="/api/v1")
 
 # Global Exception Handlers
 @app.exception_handler(Exception)

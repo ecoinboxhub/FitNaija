@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, Trophy, PlusCircle, Users, User,
-  Dumbbell, Sparkles, LogOut,
+  MessageCircle, Dumbbell, Sparkles, LogOut,
 } from "lucide-react";
 import { dataService } from "@/lib/data-service";
 
@@ -13,6 +13,7 @@ const tabs = [
   { id: "dashboard", label: "Home", icon: LayoutDashboard, href: "/dashboard" },
   { id: "challenges", label: "Challenges", icon: Trophy, href: "/challenges" },
   { id: "workout", label: "Log", icon: PlusCircle, href: "/workout" },
+  { id: "chat", label: "Chat", icon: MessageCircle, href: "/chat" },
   { id: "feed", label: "Community", icon: Users, href: "/feed" },
   { id: "profile", label: "Profile", icon: User, href: "/profile" },
 ];
