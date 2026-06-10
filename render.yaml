@@ -1,0 +1,82 @@
+services:
+  # 1. FastAPI Web Server
+  - type: web
+    name: fitnaija-backend-api
+    env: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: fitnaija-redis
+          property: connectionString
+      - key: DATABASE_URL
+        fromService:
+          type: database
+          name: fitnaija-postgres
+          property: connectionString
+      - key: TARGET_ENV
+        value: production
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: TERMII_API_KEY
+        sync: false
+      - key: PAYSTACK_SECRET_KEY
+        sync: false
+      - key: REVENUECAT_API_KEY
+        sync: false
+
+  # 2. Celery Worker
+  - type: worker
+    name: fitnaija-celery-worker
+    env: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: celery -A backend.app.celery_worker.celery worker --loglevel=info
+    envVars:
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: fitnaija-redis
+          property: connectionString
+      - key: DATABASE_URL
+        fromService:
+          type: database
+          name: fitnaija-postgres
+          property: connectionString
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: REVENUECAT_API_KEY
+        sync: false
+
+  # 3. Celery Beat Scheduler
+  - type: worker
+    name: fitnaija-celery-scheduler
+    env: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: celery -A backend.app.celery_worker.celery beat --loglevel=info
+    envVars:
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: fitnaija-redis
+          property: connectionString
+      - key: DATABASE_URL
+        fromService:
+          type: database
+          name: fitnaija-postgres
+          property: connectionString
+
+# Databases & Caches
+databases:
+  - name: fitnaija-postgres
+    plan: starter
+    postgresMajorVersion: 16
+
+redis:
+  - name: fitnaija-redis
+    plan: starter

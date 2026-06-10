@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">FitNaija</string>
+    <string name="title_activity_main">FitNaija</string>
+    <string name="package_name">com.fitnaija.app</string>
+    <string name="custom_url_scheme">com.fitnaija.app</string>
+</resources>

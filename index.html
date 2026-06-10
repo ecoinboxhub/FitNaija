@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitNaija - AI-Powered Fitness Accountability for Abuja Professionals</title>
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="FitNaija is an AI-powered fitness challenge platform built for Abuja professionals focused on accountability through community-driven fitness challenges.">
+  <meta name="keywords" content="fitness, abuja, nigeria, workout tracker, fitness challenge, community fitness, healthy habits, workout accountability">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Custom Fonts & Tailwind Configuration -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              DEFAULT: '#ff5b1f',
+              hover: '#e04c15',
+              light: '#fff5f1',
+              dark: '#242424',
+            },
+            bgSoft: '#faf9f6', // Soft near-milky white
+            textDark: '#2c2c2c', // Warm off-dark gray
+            textMuted: '#6b6a68',
+            borderLight: '#eceae6',
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Aptos', 'Arial', 'sans-serif'],
+            serif: ['"Playfair Display"', 'Georgia', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <!-- React & Babel CDNs -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', 'Aptos', Arial, sans-serif;
+      background-color: #faf9f6;
+      color: #2c2c2c;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Playfair Display', Georgia, serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #faf9f6;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #eceae6;
+      border-radius: 3px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #ff5b1f;
+    }
+  </style>
+</head>
+<body class="bg-bgSoft text-textDark selection:bg-brand/10 selection:text-brand min-h-screen">
+  <div id="root"></div>
+
+  <!-- React Application Code -->
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    // --- INITIAL MOCK DATA ---
+    const initialChallenges = [
+      {
+        id: 'c1',
+        title: 'Maitama Morning Run Club',
+        description: 'Wake up early and conquer 5K runs around Maitama Hills. Track consistency and speed with professional accountability.',
+        difficulty: 'Intermediate',
+        category: 'Running',
+        durationDays: 21,
+        startDate: '2026-06-01',
+        participantsCount: 84,
+        joined: true,
+        xpReward: 350,
+        aiCoachTip: 'Focus on breathing control and keeping a steady cadence when going up the Maitama hills.',
+        leaderboard: [
+          { name: 'Emeka N.', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150', score: 75.2, rank: 1 },
+          { name: 'Amina Y.', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150', score: 68.5, rank: 2 },
+          { name: 'Abubakar M.', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150', score: 62.0, rank: 3 },
+          { name: 'You (Chidi)', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150', score: 45.8, rank: 4 },
+        ]
+      },
+      {
+        id: 'c2',
+        title: 'Wuse II Strength & Tone',
+        description: 'A strength training routine targeting full-body muscle development, tailored for busy executives who frequent fitness spaces in Wuse.',
+        difficulty: 'Advanced',
+        category: 'Strength',
+        durationDays: 30,
+        startDate: '2026-06-05',
+        participantsCount: 128,
+        joined: false,
+        xpReward: 500,
+        aiCoachTip: 'Prioritize structural movements like compound lifts, maintaining optimal recovery periods between sets.',
+        leaderboard: [
+          { name: 'Kelechi O.', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150', score: 1200, rank: 1 },
+          { name: 'Zainab A.', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150', score: 980, rank: 2 },
+          { name: 'Femi S.', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=150', score: 850, rank: 3 },
+        ]
+      },
+      {
+        id: 'c3',
+        title: 'Garki Corporate Calorie Burn',
+        description: 'High-intensity interval training designed to squeeze physical movement into demanding professional lives based in Garki offices.',
+        difficulty: 'Beginner',
+        category: 'HIIT',
+        durationDays: 14,
+        startDate: '2026-06-10',
+        participantsCount: 215,
+        joined: true,
+        xpReward: 250,
+        aiCoachTip: 'Keep active desk stretches going during work hours to enhance recovery and maintain circulation.',
+        leaderboard: [
+          { name: 'Tunde B.', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=150', score: 4800, rank: 1 },
+          { name: 'You (Chidi)', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150', score: 3200, rank: 2 },
+          { name: 'Ngozi E.', avatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=150', score: 2900, rank: 3 },
+        ]
+      },
+      {
+        id: 'c4',
+        title: 'Jabi Lake Yoga & Mindfulness',
+        description: 'Weekend sessions focused on holistic mental clarity, breathing practices, and flexibility routines beside Jabi Lake.',
+        difficulty: 'Beginner',
+        category: 'Yoga',
+        durationDays: 28,
+        startDate: '2026-06-15',
+        participantsCount: 92,
+        joined: false,
+        xpReward: 200,
+        aiCoachTip: 'Focus intensely on inhaling deeply, using the lake ambient atmosphere to release stress hormones.',
+        leaderboard: [
+          { name: 'Chioma A.', avatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=150', score: 150, rank: 1 },
+          { name: 'Tariq U.', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150', score: 120, rank: 2 },
+        ]
+      }
+    ];
+
+    const initialFeed = [
+      {
+        id: 'f1',
+        userName: 'Amina Y.',
+        userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150',
+        action: 'logged a running workout',
+        detail: '5.2 km at Maitama Hills in 28 mins.',
+        time: '2 hours ago',
+        cheers: 14,
+        cheered: false,
+        challenge: 'Maitama Morning Run Club',
+        type: 'workout'
+      },
+      {
+        id: 'f2',
+        userName: 'Abubakar M.',
+        userAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150',
+        action: 'completed a milestone',
+        detail: 'Achieved 7 consecutive days of workouts!',
+        time: '4 hours ago',
+        cheers: 29,
+        cheered: true,
+        challenge: 'Maitama Morning Run Club',
+        type: 'milestone'
+      },
+      {
+        id: 'f3',
+        userName: 'Kelechi O.',
+        userAvatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=150',
+        action: 'shared encouragement',
+        detail: '“Abuja professionals! Let’s keep moving today. Work is long, but fitness keeps the body ready!”',
+        time: '6 hours ago',
+        cheers: 42,
+        cheered: false,
+        challenge: 'Wuse II Strength & Tone',
+        type: 'post'
+      }
+    ];
+
+    const initialWorkoutLogs = [
+      { id: 'w1', type: 'Running', duration: 45, notes: 'Completed 6km trail around Jabi Lake early morning.', date: '2026-05-28', proof: null },
+      { id: 'w2', type: 'Strength', duration: 60, notes: 'High volume push day at the gym in Wuse II.', date: '2026-05-26', proof: null },
+      { id: 'w3', type: 'HIIT', duration: 30, notes: 'Quick home HIIT before going to the secretariat in Central Area.', date: '2026-05-24', proof: null }
+    ];
+
+    // --- MAIN APP COMPONENT ---
+    function App() {
+      // Navigation / UI States
+      const [currentTab, setCurrentTab] = useState('dashboard'); // dashboard, challenges, workout, feed, profile
+      const [selectedChallengeId, setSelectedChallengeId] = useState(null); // Detail view of a challenge
+      const [joinedToast, setJoinedToast] = useState(null);
+      const [aiEncouragement, setAiEncouragement] = useState("Keep pushing! Abuja's finest stay consistent. Your next milestone is waiting.");
+
+      // Application State
+      const [challenges, setChallenges] = useState(initialChallenges);
+      const [feed, setFeed] = useState(initialFeed);
+      const [workoutLogs, setWorkoutLogs] = useState(initialWorkoutLogs);
+
+      // Manual workout form state
+      const [activityType, setActivityType] = useState('Running');
+      const [duration, setDuration] = useState('');
+      const [notes, setNotes] = useState('');
+      const [imagePreview, setImagePreview] = useState(null);
+
+      // Community Feed new post state
+      const [newPostText, setNewPostText] = useState('');
+      const [feedFilter, setFeedFilter] = useState('all');
+
+      // Profile details
+      const userProfile = {
+        name: 'Chidi A.',
+        role: 'Consultant, Central Business District',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150',
+        completedCount: 4,
+        xp: 1420,
+        level: 'Pro Activist',
+      };
+
+      // AI Coach Generator utility
+      const triggerAiEncouragement = (activity, durationMinutes) => {
+        const tips = [
+          `Splendid effort! A corporate powerhouse running ${durationMinutes} mins has proven productivity increases by 20% after heart-pumping activity.`,
+          `Exceptional! Moving consistently prevents desk stiffness. Maintain high hydration levels in this Abuja heat.`,
+          `Superb accountability shown with this ${activity} session. Abuja stays strong one professional at a time!`
+        ];
+        const randomTip = tips[Math.floor(Math.random() * tips.length)];
+        setAiEncouragement(randomTip);
+      };
+
+      // Handle Workout submission
+      const handleAddWorkout = (e) => {
+        e.preventDefault();
+        if (!duration) return;
+
+        const newLog = {
+          id: 'w_' + Date.now(),
+          type: activityType,
+          duration: parseInt(duration),
+          notes: notes || `Completed intense ${activityType} routine!`,
+          date: new Date().toISOString().split('T')[0],
+          proof: imagePreview
+        };
+
+        setWorkoutLogs([newLog, ...workoutLogs]);
+        
+        // Add workout directly to Community Feed automatically for accountability
+        const newFeedItem = {
+          id: 'f_' + Date.now(),
+          userName: 'You (Chidi)',
+          userAvatar: userProfile.avatar,
+          action: 'logged a workout',
+          detail: `Logged a ${newLog.duration} mins ${newLog.type} session. Notes: "${newLog.notes}"`,
+          time: 'Just now',
+          cheers: 0,
+          cheered: false,
+          challenge: 'Personal Streak',
+          type: 'workout'
+        };
+        setFeed([newFeedItem, ...feed]);
+
+        // Generate AI Coach reaction
+        triggerAiEncouragement(activityType, duration);
+
+        // Reset fields & switch tabs to Dashboard or Feed
+        setDuration('');
+        setNotes('');
+        setImagePreview(null);
+        showToast(`Logged successfully! AI Accountability Coach approved this!`);
+        setCurrentTab('dashboard');
+      };
+
+      // Handle Join/Leave Challenge
+      const handleToggleJoinChallenge = (challengeId) => {
+        setChallenges(challenges.map(c => {
+          if (c.id === challengeId) {
+            const isJoining = !c.joined;
+            showToast(isJoining ? `Successfully joined "${c.title}"!` : `Left "${c.title}"`);
+            
+            // Add milestone event to feed if joining
+            if (isJoining) {
+              const newFeedItem = {
+                id: 'f_join_' + Date.now(),
+                userName: 'You (Chidi)',
+                userAvatar: userProfile.avatar,
+                action: 'joined a new challenge',
+                detail: `Stepped up to conquer the ${c.title}! Watch the space.`,
+                time: 'Just now',
+                cheers: 0,
+                cheered: false,
+                challenge: c.title,
+                type: 'milestone'
+              };
+              setFeed([newFeedItem, ...feed]);
+            }
+            return { 
+              ...c, 
+              joined: isJoining,
+              participantsCount: isJoining ? c.participantsCount + 1 : c.participantsCount - 1
+            };
+          }
+          return c;
+        }));
+      };
+
+      // Handle Cheers/Like
+      const handleToggleCheer = (feedId) => {
+        setFeed(feed.map(item => {
+          if (item.id === feedId) {
+            return {
+              ...item,
+              cheered: !item.cheered,
+              cheers: item.cheered ? item.cheers - 1 : item.cheers + 1
+            };
+          }
+          return item;
+        }));
+      };
+
+      // Create interactive community post
+      const handleCreatePost = (e) => {
+        e.preventDefault();
+        if (!newPostText.trim()) return;
+
+        const newPost = {
+          id: 'f_post_' + Date.now(),
+          userName: 'You (Chidi)',
+          userAvatar: userProfile.avatar,
+          action: 'shared updates',
+          detail: `“${newPostText}”`,
+          time: 'Just now',
+          cheers: 0,
+          cheered: false,
+          challenge: 'General Chat',
+          type: 'post'
+        };
+
+        setFeed([newPost, ...feed]);
+        setNewPostText('');
+        showToast('Accountability post shared with the community!');
+      };
+
+      // Mock Image Upload Preview Helper
+      const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            setImagePreview(reader.result);
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+
+      // Show temporary custom Notification Toast
+      const showToast = (message) => {
+        setJoinedToast(message);
+        setTimeout(() => setJoinedToast(null), 3500);
+      };
+
+      // Computations
+      const activeChallenges = useMemo(() => challenges.filter(c => c.joined), [challenges]);
+      const selectedChallenge = useMemo(() => challenges.find(c => c.id === selectedChallengeId), [challenges, selectedChallengeId]);
+      
+      const stats = useMemo(() => {
+        const totalWorkouts = workoutLogs.length;
+        const totalDuration = workoutLogs.reduce((acc, curr) => acc + curr.duration, 0);
+        return { totalWorkouts, totalDuration };
+      }, [workoutLogs]);
+
+      // Initialize Lucide icons on tab updates
+      useEffect(() => {
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      }, [currentTab, selectedChallengeId]);
+
+      return (
+        <div className="flex flex-col min-h-screen">
+          
+          {/* HEADER / NAVIGATION */}
+          <header className="sticky top-0 bg-bgSoft/90 backdrop-blur-md border-b border-borderLight z-40 transition-all duration-300">
+            <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+              
+              {/* App Identity */}
+              <div className="flex items-center gap-3 cursor-pointer" onClick={() => { setCurrentTab('dashboard'); setSelectedChallengeId(null); }}>
+                <div className="w-10 h-10 rounded-full bg-brand flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-brand/20">
+                  FN
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold tracking-tight text-brand flex items-center gap-1 leading-none">
+                    FitNaija
+                  </h1>
+                  <span className="text-[10px] uppercase font-bold text-textMuted tracking-wider">Abuja Elite</span>
+                </div>
+              </div>
+
+              {/* Desktop Menu */}
+              <nav className="hidden md:flex items-center gap-8">
+                <button 
+                  onClick={() => { setCurrentTab('dashboard'); setSelectedChallengeId(null); }}
+                  className={`text-sm font-semibold transition-colors py-2 flex items-center gap-2 ${currentTab === 'dashboard' ? 'text-brand border-b-2 border-brand' : 'text-textMuted hover:text-textDark'}`}
+                >
+                  <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                </button>
+                <button 
+                  onClick={() => { setCurrentTab('challenges'); setSelectedChallengeId(null); }}
+                  className={`text-sm font-semibold transition-colors py-2 flex items-center gap-2 ${currentTab === 'challenges' ? 'text-brand border-b-2 border-brand' : 'text-textMuted hover:text-textDark'}`}
+                >
+                  <i data-lucide="trophy" class="w-4 h-4"></i> Challenges
+                </button>
+                <button 
+                  onClick={() => { setCurrentTab('workout'); setSelectedChallengeId(null); }}
+                  className={`text-sm font-semibold transition-colors py-2 flex items-center gap-2 ${currentTab === 'workout' ? 'text-brand border-b-2 border-brand' : 'text-textMuted hover:text-textDark'}`}
+                >
+                  <i data-lucide="plus-circle" class="w-4 h-4"></i> Log Workout
+                </button>
+                <button 
+                  onClick={() => { setCurrentTab('feed'); setSelectedChallengeId(null); }}
+                  className={`text-sm font-semibold transition-colors py-2 flex items-center gap-2 ${currentTab === 'feed' ? 'text-brand border-b-2 border-brand' : 'text-textMuted hover:text-textDark'}`}
+                >
+                  <i data-lucide="users" class="w-4 h-4"></i> Community
+                </button>
+                <button 
+                  onClick={() => { setCurrentTab('profile'); setSelectedChallengeId(null); }}
+                  className={`text-sm font-semibold transition-colors py-2 flex items-center gap-2 ${currentTab === 'profile' ? 'text-brand border-b-2 border-brand' : 'text-textMuted hover:text-textDark'}`}
+                >
+                  <i data-lucide="user" class="w-4 h-4"></i> Profile
+                </button>
+              </nav>
+
+              {/* Fast Status Bar */}
+              <div className="flex items-center gap-3">
+                <div className="bg-brand-light text-brand px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow-sm border border-brand/10">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                  <span>{userProfile.xp} XP</span>
+                </div>
+              </div>
+
+            </div>
+          </header>
+
+          {/* MAIN LAYOUT */}
+          <main className="flex-1 max-w-6xl w-full mx-auto px-4 md:px-6 py-8 relative">
+            
+            {/* HERO LANDING EXPERIENCE HERO BANNER */}
+            <div className="mb-10 rounded-2xl bg-white border border-borderLight p-6 md:p-10 relative overflow-hidden shadow-sm">
+              <div className="absolute right-0 bottom-0 top-0 w-1/3 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-brand/5 via-transparent to-transparent hidden md:block"></div>
+              <div className="relative z-10 max-w-2xl">
+                <span className="bg-brand-light text-brand text-xs font-extrabold uppercase px-3 py-1 rounded-full tracking-wider mb-4 inline-block">
+                  Platform Accountability
+                </span>
+                <h2 className="text-4xl md:text-5xl font-serif text-textDark mb-3 leading-tight font-extrabold">
+                  FitNaija
+                </h2>
+                <p className="text-lg md:text-xl font-medium text-textMuted mb-6 leading-relaxed">
+                  AI-Powered Fitness Challenge App. Built with you. Designed for professional minds navigating city-scale high stress.
+                </p>
+                <div className="flex flex-wrap gap-4 items-center">
+                  <button 
+                    onClick={() => { setCurrentTab('challenges'); setSelectedChallengeId(null); }}
+                    className="bg-brand hover:bg-brand-hover text-white text-sm font-semibold px-6 py-3 rounded-lg transition-transform hover:-translate-y-0.5 shadow-md shadow-brand/20 flex items-center gap-2"
+                  >
+                    Explore Challenges <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                  </button>
+                  <button 
+                    onClick={() => setCurrentTab('workout')}
+                    className="bg-white hover:bg-bgSoft border border-borderLight text-textDark text-sm font-semibold px-6 py-3 rounded-lg transition-all"
+                  >
+                    Quick Log Workout
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* AI COACH FLOATING BANNER */}
+            <div className="mb-8 rounded-xl bg-brand-light border border-brand/10 p-4 flex items-start gap-3.5 shadow-sm">
+              <div className="w-10 h-10 rounded-lg bg-brand/10 flex items-center justify-center text-brand shrink-0 mt-0.5">
+                <i data-lucide="bot" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h4 className="text-xs uppercase font-extrabold tracking-wider text-brand mb-1">AI Accountability Coach Suggestion</h4>
+                <p className="text-sm font-medium italic text-textDark">
+                  &ldquo;{aiEncouragement}&rdquo;
+                </p>
+              </div>
+            </div>
+
+            {/* SCREEN VIEWPORT CONTAINER */}
+            <div className="transition-all duration-300">
+              
+              {/* --- DASHBOARD TAB --- */}
+              {currentTab === 'dashboard' && (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  
+                  {/* Left Column: Progress & Quick Actions */}
+                  <div className="lg:col-span-2 space-y-8">
+                    
+                    {/* Progress Card Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      
+                      <div className="bg-white border border-borderLight p-5 rounded-xl shadow-xs">
+                        <span className="text-textMuted text-xs font-semibold uppercase tracking-wider block mb-1">XP Level</span>
+                        <div className="text-2xl font-extrabold font-serif text-textDark mb-1">{userProfile.level}</div>
+                        <div className="h-1.5 w-full bg-borderLight rounded-full overflow-hidden">
+                          <div className="h-full bg-brand" style={{ width: '68%' }}></div>
+                        </div>
+                        <span className="text-[10px] text-textMuted mt-1 block">68% of level target met</span>
+                      </div>
+
+                      <div className="bg-white border border-borderLight p-5 rounded-xl shadow-xs">
+                        <span className="text-textMuted text-xs font-semibold uppercase tracking-wider block mb-1">Logged Workouts</span>
+                        <div className="text-2xl font-extrabold font-serif text-brand mb-1">{stats.totalWorkouts} sessions</div>
+                        <span className="text-xs text-textMuted font-medium">Keep maintaining momentum</span>
+                      </div>
+
+                      <div className="bg-white border border-borderLight p-5 rounded-xl shadow-xs">
+                        <span className="text-textMuted text-xs font-semibold uppercase tracking-wider block mb-1">Total Minutes Spent</span>
+                        <div className="text-2xl font-extrabold font-serif text-textDark mb-1">{stats.totalDuration} mins</div>
+                        <span className="text-xs text-textMuted font-medium">Equal to {(stats.totalDuration / 60).toFixed(1)} active hours</span>
+                      </div>
+
+                    </div>
+
+                    {/* Joined/Active Challenges */}
+                    <div>
+                      <h3 className="text-xl font-bold font-serif text-textDark mb-4 flex items-center gap-2">
+                        <i data-lucide="sparkles" class="w-5 h-5 text-brand"></i> My Active Commitments ({activeChallenges.length})
+                      </h3>
+                      
+                      {activeChallenges.length === 0 ? (
+                        <div className="bg-white border border-dashed border-borderLight p-8 rounded-xl text-center">
+                          <i data-lucide="award" class="w-10 h-10 text-textMuted mx-auto mb-3"></i>
+                          <h4 className="font-semibold text-textDark mb-1">No active challenges yet</h4>
+                          <p className="text-sm text-textMuted mb-4">Start your wellness commitments today to build deep focus.</p>
+                          <button 
+                            onClick={() => setCurrentTab('challenges')}
+                            className="bg-brand text-white text-xs font-bold px-4 py-2.5 rounded-lg"
+                          >
+                            Explore Challenges
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {activeChallenges.map(c => (
+                            <div key={c.id} className="bg-white border border-borderLight p-5 rounded-xl hover:shadow-sm transition-all flex flex-col justify-between">
+                              <div>
+                                <div className="flex justify-between items-start mb-2">
+                                  <span className="bg-brand-light text-brand text-[10px] font-extrabold px-2.5 py-0.5 rounded-md uppercase tracking-wider">
+                                    {c.category}
+                                  </span>
+                                  <span className="text-xs text-textMuted font-semibold">{c.participantsCount} competitors</span>
+                                </div>
+                                <h4 className="font-bold text-lg text-textDark mb-1.5 font-serif">{c.title}</h4>
+                                <p className="text-xs text-textMuted line-clamp-2 mb-4 leading-relaxed">{c.description}</p>
+                              </div>
+                              
+                              <div className="flex justify-between items-center pt-4 border-t border-borderLight mt-2">
+                                <button 
+                                  onClick={() => { setSelectedChallengeId(c.id); setCurrentTab('challenges'); }}
+                                  className="text-xs font-semibold text-brand hover:underline flex items-center gap-1"
+                                >
+                                  Leaderboard & Details <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                                </button>
+                                <span className="text-[10px] text-textMuted font-medium">{c.durationDays} Days Duration</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Quick Logs Feed Summary */}
+                    <div className="bg-white border border-borderLight p-6 rounded-xl shadow-xs">
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-lg font-bold font-serif text-textDark">Recent Personal Logs</h3>
+                        <button onClick={() => setCurrentTab('workout')} className="text-xs font-bold text-brand hover:underline">
+                          Log a new one
+                        </button>
+                      </div>
+                      
+                      {workoutLogs.length === 0 ? (
+                        <p className="text-xs text-textMuted italic">No sessions logged yet.</p>
+                      ) : (
+                        <div className="space-y-3.5">
+                          {workoutLogs.slice(0, 3).map((log) => (
+                            <div key={log.id} className="flex justify-between items-start p-3 bg-bgSoft rounded-lg border border-borderLight/60">
+                              <div className="flex gap-3">
+                                <div className="w-9 h-9 bg-brand/10 text-brand rounded-full flex items-center justify-center mt-0.5">
+                                  <i data-lucide="activity" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                  <div className="text-sm font-bold text-textDark">{log.type} Activity</div>
+                                  <div className="text-xs text-textMuted">{log.date} &bull; {log.duration} mins</div>
+                                  <p className="text-xs text-textDark mt-1 font-medium">&ldquo;{log.notes}&rdquo;</p>
+                                  {log.proof && (
+                                    <div className="mt-2 text-[10px] text-brand font-semibold flex items-center gap-1">
+                                      <i data-lucide="image" class="w-3 h-3"></i> Upload Proof Linked
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                  </div>
+
+                  {/* Right Column: Mini Community Feed Overview */}
+                  <div className="space-y-6">
+                    <div className="bg-white border border-borderLight p-6 rounded-xl shadow-xs">
+                      <h3 className="text-lg font-bold font-serif text-textDark mb-4 flex items-center gap-2">
+                        <i data-lucide="message-square" class="w-5 h-5 text-brand"></i> Accountability Hub
+                      </h3>
+                      
+                      <div className="space-y-4">
+                        {feed.slice(0, 3).map(item => (
+                          <div key={item.id} className="border-b border-borderLight pb-4 last:border-b-0 last:pb-0">
+                            <div className="flex gap-3 items-start mb-1.5">
+                              <img src={item.userAvatar} alt={item.userName} className="w-8 h-8 rounded-full object-cover mt-0.5 border border-borderLight" />
+                              <div>
+                                <span className="text-xs font-bold text-textDark">{item.userName}</span>
+                                <span className="text-xs text-textMuted ml-1">{item.action}</span>
+                                <span className="text-[10px] text-textMuted block">{item.time}</span>
+                              </div>
+                            </div>
+                            <p className="text-xs text-textDark font-medium pl-11 mb-2 leading-relaxed">
+                              {item.detail}
+                            </p>
+                            <div className="pl-11 flex justify-between items-center">
+                              <button 
+                                onClick={() => handleToggleCheer(item.id)}
+                                className={`text-[10px] font-bold px-2 py-1 rounded-md transition-colors flex items-center gap-1 ${item.cheered ? 'bg-brand/10 text-brand' : 'text-textMuted hover:text-textDark'}`}
+                              >
+                                <i data-lucide="heart" class="w-3 h-3"></i> {item.cheers} Cheers
+                              </button>
+                              <span className="text-[10px] bg-bgSoft px-2 py-0.5 rounded text-textMuted font-medium">{item.challenge}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <button 
+                        onClick={() => setCurrentTab('feed')}
+                        className="w-full text-center mt-4 pt-3 border-t border-borderLight text-xs font-bold text-brand hover:underline block"
+                      >
+                        Open Community Feed
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+              )}
+
+              {/* --- CHALLENGES DISCOVERY TAB --- */}
+              {currentTab === 'challenges' && !selectedChallengeId && (
+                <div>
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                    <div>
+                      <h2 className="text-3xl font-serif font-bold text-textDark">Accountability Challenges</h2>
+                      <p className="text-sm text-textMuted">Select and join fitness environments created for city builders.</p>
+                    </div>
+                    
+                    {/* Category quick selectors */}
+                    <div className="flex gap-2 flex-wrap">
+                      <span className="bg-brand text-white text-xs font-bold px-3.5 py-1.5 rounded-lg cursor-pointer">All Categories</span>
+                      <span className="bg-white hover:bg-bgSoft border border-borderLight text-xs font-semibold px-3.5 py-1.5 rounded-lg cursor-pointer text-textMuted hover:text-textDark">Running</span>
+                      <span className="bg-white hover:bg-bgSoft border border-borderLight text-xs font-semibold px-3.5 py-1.5 rounded-lg cursor-pointer text-textMuted hover:text-textDark">Strength</span>
+                      <span className="bg-white hover:bg-bgSoft border border-borderLight text-xs font-semibold px-3.5 py-1.5 rounded-lg cursor-pointer text-textMuted hover:text-textDark">HIIT</span>
+                      <span className="bg-white hover:bg-bgSoft border border-borderLight text-xs font-semibold px-3.5 py-1.5 rounded-lg cursor-pointer text-textMuted hover:text-textDark">Yoga</span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {challenges.map(c => (
+                      <div key={c.id} className="bg-white border border-borderLight rounded-xl overflow-hidden hover:shadow-md transition-all flex flex-col justify-between">
+                        
+                        <div className="p-6">
+                          <div className="flex justify-between items-center mb-4">
+                            <span className="bg-brand-light text-brand text-xs font-extrabold px-3 py-1 rounded-md uppercase tracking-wider">
+                              {c.category}
+                            </span>
+                            <span className="text-xs text-textMuted font-semibold flex items-center gap-1">
+                              <i data-lucide="users" class="w-3.5 h-3.5"></i> {c.participantsCount} joined
+                            </span>
+                          </div>
+
+                          <h3 className="text-xl font-bold font-serif text-textDark mb-2 leading-snug">{c.title}</h3>
+                          <p className="text-sm text-textMuted leading-relaxed mb-4">{c.description}</p>
+
+                          <div className="space-y-2 mt-4 pt-4 border-t border-borderLight">
+                            <div className="flex justify-between text-xs">
+                              <span className="text-textMuted font-medium">Complexity level</span>
+                              <span className="font-bold text-textDark">{c.difficulty}</span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-textMuted font-medium">Target Duration</span>
+                              <span className="font-bold text-textDark">{c.durationDays} Days</span>
+                            </div>
+                            <div className="flex justify-between text-xs">
+                              <span className="text-textMuted font-medium">Milestone XP Reward</span>
+                              <span className="font-bold text-brand">{c.xpReward} XP</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Card bottom actions */}
+                        <div className="px-6 py-4 bg-bgSoft border-t border-borderLight flex items-center justify-between gap-3">
+                          <button 
+                            onClick={() => setSelectedChallengeId(c.id)}
+                            className="text-xs font-bold text-textDark hover:text-brand flex items-center gap-1.5"
+                          >
+                            <i data-lucide="bar-chart-2" class="w-4 h-4"></i> Leaderboard
+                          </button>
+                          
+                          <button 
+                            onClick={() => handleToggleJoinChallenge(c.id)}
+                            className={`text-xs font-bold px-4 py-2.5 rounded-lg transition-colors flex items-center gap-1.5 ${c.joined ? 'bg-textDark text-white hover:bg-brand' : 'bg-brand text-white hover:bg-brand-hover'}`}
+                          >
+                            {c.joined ? (
+                              <>
+                                <i data-lucide="check" class="w-3.5 h-3.5"></i> Active Commitment
+                              </>
+                            ) : (
+                              <>
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Commit Now
+                              </>
+                            )}
+                          </button>
+                        </div>
+
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* --- DETAILED CHALLENGE SCREEN (LEADERBOARD) --- */}
+              {currentTab === 'challenges' && selectedChallengeId && selectedChallenge && (
+                <div className="bg-white border border-borderLight rounded-xl p-6 md:p-8 shadow-xs">
+                  
+                  {/* Back button */}
+                  <button 
+                    onClick={() => setSelectedChallengeId(null)}
+                    className="text-xs font-bold text-brand hover:underline flex items-center gap-1.5 mb-6"
+                  >
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Return to Directory
+                  </button>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    {/* Challenge Overview & Advice */}
+                    <div className="lg:col-span-1 space-y-6">
+                      <div>
+                        <span className="bg-brand-light text-brand text-[10px] font-extrabold px-3 py-1 rounded-md uppercase tracking-wider mb-2.5 inline-block">
+                          {selectedChallenge.category}
+                        </span>
+                        <h2 className="text-3xl font-serif font-bold text-textDark leading-tight mb-3">
+                          {selectedChallenge.title}
+                        </h2>
+                        <p className="text-sm text-textMuted leading-relaxed">
+                          {selectedChallenge.description}
+                        </p>
+                      </div>
+
+                      <div className="p-4 bg-bgSoft rounded-xl border border-borderLight">
+                        <h4 className="text-xs uppercase font-extrabold tracking-wider text-brand mb-2 flex items-center gap-1.5">
+                          <i data-lucide="bot" class="w-4 h-4"></i> AI Coach Guidance
+                        </h4>
+                        <p className="text-xs italic text-textDark leading-relaxed">
+                          &ldquo;{selectedChallenge.aiCoachTip}&rdquo;
+                        </p>
+                      </div>
+
+                      <div className="space-y-2.5 pt-4 border-t border-borderLight">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-textMuted font-medium">Difficulty Profile</span>
+                          <span className="font-bold text-textDark">{selectedChallenge.difficulty}</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-textMuted font-medium">Active Competitors</span>
+                          <span className="font-bold text-textDark">{selectedChallenge.participantsCount} professionals</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-textMuted font-medium">Total Rewards potential</span>
+                          <span className="font-bold text-brand">{selectedChallenge.xpReward} XP</span>
+                        </div>
+                      </div>
+
+                      <button 
+                        onClick={() => handleToggleJoinChallenge(selectedChallenge.id)}
+                        className={`w-full py-3 rounded-lg text-sm font-bold transition-all ${selectedChallenge.joined ? 'bg-textDark text-white hover:bg-brand' : 'bg-brand text-white hover:bg-brand-hover'}`}
+                      >
+                        {selectedChallenge.joined ? 'Cancel Commitment' : 'Join Challenge Arena'}
+                      </button>
+                    </div>
+
+                    {/* Leaderboard Entries Column */}
+                    <div className="lg:col-span-2 space-y-6">
+                      <div className="flex justify-between items-center">
+                        <h3 className="text-xl font-bold font-serif text-textDark">Arena Leaderboard</h3>
+                        <span className="text-xs text-textMuted font-semibold uppercase tracking-wider">Metrics: Active XP / Speed Log</span>
+                      </div>
+
+                      <div className="border border-borderLight rounded-xl overflow-hidden bg-bgSoft">
+                        <div className="p-4 bg-white border-b border-borderLight flex justify-between text-xs font-bold text-textMuted">
+                          <span>Participant Name</span>
+                          <span>Score Intensity</span>
+                        </div>
+
+                        <div className="divide-y divide-borderLight">
+                          {selectedChallenge.leaderboard.map((item, index) => (
+                            <div 
+                              key={index} 
+                              className={`p-4 flex justify-between items-center bg-white hover:bg-bgSoft transition-colors ${item.name.includes('You') ? 'bg-brand-light/40 border-l-4 border-brand' : ''}`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className={`w-6 text-center text-sm font-extrabold ${index === 0 ? 'text-yellow-500' : index === 1 ? 'text-gray-400' : index === 2 ? 'text-amber-600' : 'text-textMuted'}`}>
+                                  {index + 1}
+                                </span>
+                                <img src={item.avatar} alt={item.name} className="w-8 h-8 rounded-full object-cover border border-borderLight" />
+                                <span className="text-sm font-bold text-textDark">{item.name}</span>
+                              </div>
+                              <span className="text-sm font-extrabold text-brand">{item.score} <span className="text-[10px] text-textMuted font-semibold">pts</span></span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              )}
+
+              {/* --- WORKOUT LOGGING TAB --- */}
+              {currentTab === 'workout' && (
+                <div className="max-w-2xl mx-auto bg-white border border-borderLight p-6 md:p-8 rounded-xl shadow-xs">
+                  
+                  <div className="mb-6">
+                    <h2 className="text-3xl font-serif font-bold text-textDark mb-1">Verify Workout Log</h2>
+                    <p className="text-sm text-textMuted">Log details of your physical session. Your AI coach evaluates authenticity dynamically.</p>
+                  </div>
+
+                  <form onSubmit={handleAddWorkout} className="space-y-6">
+                    
+                    {/* Activity selector */}
+                    <div>
+                      <label className="text-xs uppercase font-extrabold tracking-wider text-textDark block mb-2">Activity Profile</label>
+                      <select 
+                        value={activityType} 
+                        onChange={(e) => setActivityType(e.target.value)}
+                        className="w-full bg-bgSoft border border-borderLight rounded-lg p-3 text-sm font-semibold text-textDark outline-none focus:border-brand"
+                      >
+                        <option value="Running">Running Session</option>
+                        <option value="Strength">Strength / Weights Day</option>
+                        <option value="HIIT">HIIT Cardio Burnout</option>
+                        <option value="Yoga">Yoga and Stretching Flow</option>
+                      </select>
+                    </div>
+
+                    {/* Duration input */}
+                    <div>
+                      <label className="text-xs uppercase font-extrabold tracking-wider text-textDark block mb-2">Duration (Minutes)</label>
+                      <input 
+                        type="number" 
+                        required
+                        value={duration}
+                        onChange={(e) => setDuration(e.target.value)}
+                        placeholder="e.g. 45"
+                        className="w-full bg-bgSoft border border-borderLight rounded-lg p-3 text-sm font-semibold text-textDark outline-none focus:border-brand"
+                      />
+                    </div>
+
+                    {/* Workout notes */}
+                    <div>
+                      <label className="text-xs uppercase font-extrabold tracking-wider text-textDark block mb-2">Self-Observation Notes</label>
+                      <textarea 
+                        rows="3"
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        placeholder="Detail how you felt, weather conditions or weight sets completed..."
+                        className="w-full bg-bgSoft border border-borderLight rounded-lg p-3 text-sm font-semibold text-textDark outline-none focus:border-brand resize-none"
+                      ></textarea>
+                    </div>
+
+                    {/* Image proof input */}
+                    <div>
+                      <label className="text-xs uppercase font-extrabold tracking-wider text-textDark block mb-2">Optional Screenshot Proof (Preview Only)</label>
+                      <div className="border border-dashed border-borderLight rounded-lg p-4 bg-bgSoft flex flex-col items-center justify-center text-center">
+                        <i data-lucide="camera" class="w-8 h-8 text-textMuted mb-2"></i>
+                        <span className="text-xs font-semibold text-textDark mb-1">Upload smartwatch run trail or gym selfie</span>
+                        <span className="text-[10px] text-textMuted mb-3">JPG or PNG format</span>
+                        
+                        <input 
+                          type="file" 
+                          id="proof-upload"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          className="hidden" 
+                        />
+                        <label 
+                          htmlFor="proof-upload"
+                          className="bg-white hover:bg-bgSoft border border-borderLight text-xs font-bold px-4 py-2 rounded-md cursor-pointer inline-block"
+                        >
+                          Select Image File
+                        </label>
+                      </div>
+
+                      {imagePreview && (
+                        <div className="mt-4 p-3 bg-white border border-borderLight rounded-lg">
+                          <span className="text-xs font-bold text-textDark block mb-2">Attachment Preview:</span>
+                          <img src={imagePreview} alt="Proof preview" className="max-h-48 w-auto rounded-md object-contain border border-borderLight" />
+                          <button 
+                            type="button" 
+                            onClick={() => setImagePreview(null)}
+                            className="text-xs font-bold text-red-500 hover:underline mt-2 block"
+                          >
+                            Remove attachment
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* CTA buttons */}
+                    <button 
+                      type="submit"
+                      className="w-full bg-brand hover:bg-brand-hover text-white text-sm font-bold py-3.5 rounded-lg transition-transform hover:-translate-y-0.5 shadow-md shadow-brand/20"
+                    >
+                      Authenticate and Publish Log
+                    </button>
+
+                  </form>
+                </div>
+              )}
+
+              {/* --- COMMUNITY FEED TAB --- */}
+              {currentTab === 'feed' && (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  
+                  {/* Left columns: feed item creator & posts list */}
+                  <div className="lg:col-span-2 space-y-6">
+                    
+                    {/* Feed filter selector */}
+                    <div className="flex gap-2 border-b border-borderLight pb-4">
+                      <button 
+                        onClick={() => setFeedFilter('all')} 
+                        className={`text-xs font-bold px-4 py-2 rounded-lg ${feedFilter === 'all' ? 'bg-textDark text-white' : 'bg-white border border-borderLight text-textMuted'}`}
+                      >
+                        All Activities
+                      </button>
+                      <button 
+                        onClick={() => setFeedFilter('workout')} 
+                        className={`text-xs font-bold px-4 py-2 rounded-lg ${feedFilter === 'workout' ? 'bg-textDark text-white' : 'bg-white border border-borderLight text-textMuted'}`}
+                      >
+                        Workout Logs
+                      </button>
+                      <button 
+                        onClick={() => setFeedFilter('post')} 
+                        className={`text-xs font-bold px-4 py-2 rounded-lg ${feedFilter === 'post' ? 'bg-textDark text-white' : 'bg-white border border-borderLight text-textMuted'}`}
+                      >
+                        Encouragement Posts
+                      </button>
+                    </div>
+
+                    {/* Post creation form */}
+                    <div className="bg-white border border-borderLight p-4 rounded-xl shadow-xs">
+                      <form onSubmit={handleCreatePost}>
+                        <label className="text-xs uppercase font-extrabold tracking-wider text-textDark block mb-2">Encourage your colleagues</label>
+                        <textarea 
+                          rows="2"
+                          value={newPostText}
+                          onChange={(e) => setNewPostText(e.target.value)}
+                          placeholder="Share fitness inspiration or tips for running in the early morning..."
+                          className="w-full bg-bgSoft border border-borderLight rounded-lg p-3 text-sm text-textDark outline-none focus:border-brand resize-none mb-3"
+                        ></textarea>
+                        
+                        <div className="flex justify-end">
+                          <button 
+                            type="submit"
+                            className="bg-brand hover:bg-brand-hover text-white text-xs font-bold px-4 py-2.5 rounded-md transition-colors"
+                          >
+                            Share Accountability Post
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+
+                    {/* Feed Posts */}
+                    <div className="space-y-4">
+                      {feed
+                        .filter(item => feedFilter === 'all' || item.type === feedFilter)
+                        .map(item => (
+                          <div key={item.id} className="bg-white border border-borderLight p-6 rounded-xl shadow-xs">
+                            <div className="flex gap-4 items-start mb-4">
+                              <img src={item.userAvatar} alt={item.userName} className="w-10 h-10 rounded-full object-cover border border-borderLight" />
+                              <div>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-sm font-bold text-textDark">{item.userName}</span>
+                                  <span className="text-xs text-textMuted">{item.action}</span>
+                                </div>
+                                <span className="text-[10px] text-textMuted font-medium block">{item.time}</span>
+                              </div>
+                            </div>
+
+                            <p className="text-sm text-textDark font-medium leading-relaxed mb-4 pl-14">
+                              {item.detail}
+                            </p>
+
+                            <div className="pl-14 pt-4 border-t border-borderLight flex justify-between items-center">
+                              <button 
+                                onClick={() => handleToggleCheer(item.id)}
+                                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${item.cheered ? 'bg-brand-light text-brand' : 'text-textMuted hover:text-textDark hover:bg-bgSoft'}`}
+                              >
+                                <i data-lucide="heart" class="w-4 h-4"></i> {item.cheers} Cheers
+                              </button>
+                              <span className="text-xs bg-bgSoft px-3 py-1 rounded-md text-textMuted font-semibold">
+                                {item.challenge}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+
+                  </div>
+
+                  {/* Right Column: Community Guidelines & Highlights */}
+                  <div className="space-y-6">
+                    
+                    <div className="bg-white border border-borderLight p-5 rounded-xl shadow-xs">
+                      <h4 className="font-bold text-textDark font-serif text-lg mb-3">Abuja Fitness Accountability guidelines</h4>
+                      <p className="text-xs text-textMuted leading-relaxed space-y-2">
+                        FitNaija builds fitness consistency with AI Coach tracking logs. Always maintain integrity in timing and speed logs. Peer review operates at 100% capacity!
+                      </p>
+                    </div>
+
+                    <div className="bg-white border border-borderLight p-5 rounded-xl shadow-xs">
+                      <h4 className="font-bold text-textDark font-serif text-lg mb-3">Trending Challenge Group</h4>
+                      <div className="flex justify-between items-center p-3 bg-bgSoft rounded-lg border border-borderLight/60">
+                        <div>
+                          <span className="text-xs font-bold text-textDark block">Wuse II Strength & Tone</span>
+                          <span className="text-[10px] text-textMuted font-medium">128 active competitors</span>
+                        </div>
+                        <button 
+                          onClick={() => { setSelectedChallengeId('c2'); setCurrentTab('challenges'); }} 
+                          className="bg-brand text-white text-[10px] font-bold px-3 py-1.5 rounded-md"
+                        >
+                          View
+                        </button>
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+              )}
+
+              {/* --- PROFILE TAB --- */}
+              {currentTab === 'profile' && (
+                <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+                  
+                  {/* Left Column: Avatar & Summary stats */}
+                  <div className="md:col-span-1 space-y-6">
+                    <div className="bg-white border border-borderLight p-6 rounded-xl text-center shadow-xs">
+                      <img 
+                        src={userProfile.avatar} 
+                        alt={userProfile.name} 
+                        className="w-24 h-24 rounded-full mx-auto object-cover border-4 border-brand-light shadow-md mb-4" 
+                      />
+                      <h3 className="text-xl font-bold font-serif text-textDark mb-1">{userProfile.name}</h3>
+                      <p className="text-xs text-textMuted font-semibold leading-relaxed mb-4">
+                        {userProfile.role}
+                      </p>
+                      
+                      <div className="bg-bgSoft p-3.5 rounded-lg border border-borderLight inline-block">
+                        <span className="text-[10px] uppercase font-extrabold tracking-wider text-textMuted block mb-0.5">Title Rank</span>
+                        <span className="text-brand font-bold text-sm">{userProfile.level}</span>
+                      </div>
+                    </div>
+
+                    <div className="bg-white border border-borderLight p-5 rounded-xl shadow-xs">
+                      <h4 className="font-bold text-textDark font-serif text-sm mb-3">Accountability Quick Data</h4>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-textMuted font-medium">Active XP Points</span>
+                          <span className="font-bold text-textDark">{userProfile.xp} XP</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-textMuted font-medium">Platform Log count</span>
+                          <span className="font-bold text-textDark">{stats.totalWorkouts} logged</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-textMuted font-medium">Completed Milestones</span>
+                          <span className="font-bold text-textDark">{userProfile.completedCount} challenges</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column: Completed Challenges & Detailed Logs */}
+                  <div className="md:col-span-2 space-y-6">
+                    
+                    {/* Logged History List */}
+                    <div className="bg-white border border-borderLight p-6 rounded-xl shadow-xs">
+                      <h3 className="text-lg font-bold font-serif text-textDark mb-4">Full Logged History</h3>
+                      
+                      {workoutLogs.length === 0 ? (
+                        <p className="text-xs text-textMuted italic">No history logged yet.</p>
+                      ) : (
+                        <div className="space-y-4">
+                          {workoutLogs.map((log) => (
+                            <div key={log.id} className="p-4 bg-bgSoft rounded-lg border border-borderLight flex justify-between items-start">
+                              <div>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="bg-brand/10 text-brand text-[10px] font-extrabold px-2.5 py-0.5 rounded-md uppercase tracking-wider">
+                                    {log.type}
+                                  </span>
+                                  <span className="text-xs text-textDark font-bold">{log.duration} minutes logged</span>
+                                </div>
+                                <p className="text-xs text-textDark mt-1.5 font-medium">&ldquo;{log.notes}&rdquo;</p>
+                                <span className="text-[10px] text-textMuted mt-1 block">Uploaded: {log.date}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Completed Arena Challenges */}
+                    <div className="bg-white border border-borderLight p-6 rounded-xl shadow-xs">
+                      <h3 className="text-lg font-bold font-serif text-textDark mb-4">Completed Accountability Runs ({userProfile.completedCount})</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="p-4 bg-bgSoft border border-borderLight rounded-lg">
+                          <span className="text-brand text-xs font-bold block mb-1">May 2026</span>
+                          <h4 className="font-bold text-sm text-textDark">Central Area Fast Walk 10K</h4>
+                          <span className="text-[10px] text-textMuted font-medium block">Achieved 400 XP</span>
+                        </div>
+                        <div className="p-4 bg-bgSoft border border-borderLight rounded-lg">
+                          <span className="text-brand text-xs font-bold block mb-1">April 2026</span>
+                          <h4 className="font-bold text-sm text-textDark">Jabi Lake Sprint Marathon</h4>
+                          <span className="text-[10px] text-textMuted font-medium block">Achieved 500 XP</span>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+              )}
+
+            </div>
+
+          </main>
+
+          {/* FOOTER */}
+          <footer className="bg-white border-t border-borderLight py-8 mt-16">
+            <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+              <div>
+                <span className="font-serif font-bold text-lg text-textDark block">FitNaija</span>
+                <span className="text-xs text-textMuted">AI-Powered Fitness Accountability Arena. Dedicated to Abuja Elite Professionals.</span>
+              </div>
+              <span className="text-xs text-textMuted">
+                &copy; 2026 FitNaija. Designed for ultimate premium health impact.
+              </span>
+            </div>
+          </footer>
+
+          {/* GLOBAL TOAST NOTIFICATION CONTAINER */}
+          {joinedToast && (
+            <div className="fixed bottom-6 right-6 bg-textDark text-white text-xs font-bold px-5 py-3 rounded-lg shadow-xl border border-white/10 z-50 flex items-center gap-2 animate-bounce">
+              <i data-lucide="sparkles" class="text-brand w-4 h-4"></i>
+              <span>{joinedToast}</span>
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
