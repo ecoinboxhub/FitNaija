@@ -32,7 +32,7 @@ class Settings(BaseSettings):
         "https://fitnaija.netlify.app",
         "https://main--fitnaija.netlify.app",
         "https://fitnaija.vercel.app",
-        "https://fitnaija-git-*.ecoinboxhub.vercel.app",
+        "https://fitnaija-3rnuhhk06-eco-s-projects0.vercel.app",
         "http://localhost:3000",
         "http://localhost:5173",
         "capacitor://localhost",
