@@ -5,9 +5,12 @@ import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, Trophy, PlusCircle, Users, User,
-  MessageCircle, Dumbbell, Sparkles, LogOut,
+  MessageCircle, Dumbbell, Sparkles, LogOut, Bell, BellRing, X,
 } from "lucide-react";
 import { dataService } from "@/lib/data-service";
+import {
+  getNotifications, markAllRead, requestNotificationPermission, unreadCount,
+} from "@/lib/notification-service";
 
 const tabs = [
   { id: "dashboard", label: "Home", icon: LayoutDashboard, href: "/dashboard" },
@@ -25,6 +28,20 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const [xp, setXp] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+
+  useEffect(() => {
+    setNotifications(getNotifications());
+    const interval = setInterval(() => {
+      setNotifications(getNotifications());
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
 
   useEffect(() => {
     dataService.getProfile().then(p => setXp(p.xp || 0)).catch(() => {});
@@ -87,7 +104,75 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             })}
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setNotifOpen(!notifOpen)}
+                className="relative p-2 rounded-xl hover:bg-slate-100 transition-all"
+              >
+                {unreadCount() > 0 ? (
+                  <BellRing className="w-4.5 h-4.5 text-emerald-600" />
+                ) : (
+                  <Bell className="w-4.5 h-4.5 text-slate-400" />
+                )}
+                {unreadCount() > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm">
+                    {unreadCount() > 9 ? "9+" : unreadCount()}
+                  </span>
+                )}
+              </motion.button>
+
+              {/* Notification Dropdown */}
+              {notifOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
+                  <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-200 z-50 overflow-hidden">
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+                      <h3 className="text-sm font-bold text-slate-800">Notifications</h3>
+                      <button
+                        onClick={() => { markAllRead(); setNotifications(getNotifications()); }}
+                        className="text-[11px] font-semibold text-emerald-600 hover:text-emerald-700"
+                      >
+                        Mark all read
+                      </button>
+                    </div>
+                    <div className="max-h-80 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <div className="text-center py-8 text-slate-400 text-sm">
+                          <Bell className="w-8 h-8 mx-auto mb-2 opacity-40" />
+                          <p className="font-medium">No notifications yet</p>
+                          <p className="text-xs mt-1">Challenge updates and chat mentions appear here</p>
+                        </div>
+                      ) : (
+                        notifications.map((n: any) => (
+                          <div
+                            key={n.id}
+                            className={`px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer ${
+                              n.read ? "" : "bg-emerald-50/50"
+                            }`}
+                          >
+                            <div className="flex items-start gap-2.5">
+                              <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
+                                n.read ? "bg-transparent" : "bg-emerald-500"
+                              }`} />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-slate-800">{n.title}</p>
+                                <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">{n.body}</p>
+                                <p className="text-[10px] text-slate-400 mt-1">
+                                  {new Date(n.created_at).toLocaleDateString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}

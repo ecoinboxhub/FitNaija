@@ -21,6 +21,7 @@ def upgrade() -> None:
         sa.Column("id", sa.UUID(), nullable=False),
         sa.Column("phone", sa.String(15), nullable=False),
         sa.Column("google_id", sa.String(100), nullable=True),
+        sa.Column("fcm_token", sa.String(500), nullable=True),
         sa.Column("display_name", sa.String(100), nullable=True),
         sa.Column("location", sa.String(50), nullable=False),
         sa.Column(
