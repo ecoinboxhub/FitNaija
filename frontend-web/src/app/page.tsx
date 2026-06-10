@@ -3,8 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Phone, KeyRound, ArrowRight, Dumbbell, Sparkles, Shield, Users } from "lucide-react";
+import { Phone, KeyRound, ArrowRight, Dumbbell, Zap, Shield, Users, ChevronRight } from "lucide-react";
 import { dataService } from "@/lib/data-service";
+
+const features = [
+  { icon: Zap, label: "AI Coach", desc: "Smart training plans" },
+  { icon: Shield, label: "Verified", desc: "Gemini photo checks" },
+  { icon: Users, label: "Community", desc: "Abuja network" },
+];
 
 export default function LoginPage() {
   const router = useRouter();
@@ -23,11 +29,8 @@ export default function LoginPage() {
       const formatted = phone.startsWith("+234") ? phone : "+234" + phone.replace(/^0+/, "");
       await dataService.sendOtp(formatted);
       setStep("otp");
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+    } catch (err: any) { setError(err.message); }
+    finally { setLoading(false); }
   };
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
@@ -39,35 +42,66 @@ export default function LoginPage() {
       const formatted = phone.startsWith("+234") ? phone : "+234" + phone.replace(/^0+/, "");
       await dataService.verifyOtp(formatted, otp);
       router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+    } catch (err: any) { setError(err.message); }
+    finally { setLoading(false); }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-emerald-900 via-brand to-emerald-700">
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
+    <div className="min-h-screen flex flex-col relative overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800" />
+      <div className="absolute inset-0 opacity-10" style={{
+        backgroundImage: `radial-gradient(circle at 25% 25%, white 1px, transparent 1px),
+                          radial-gradient(circle at 75% 75%, white 1px, transparent 1px)`,
+        backgroundSize: '60px 60px'
+      }} />
+
+      {/* Floating shapes */}
+      <div className="absolute top-20 -left-20 w-72 h-72 bg-emerald-400 rounded-full mix-blend-soft-light filter blur-3xl opacity-20 animate-pulse" />
+      <div className="absolute bottom-20 -right-20 w-96 h-96 bg-teal-300 rounded-full mix-blend-soft-light filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: "1s" }} />
+
+      <div className="relative z-10 flex-1 flex items-center justify-center p-4 sm:p-8">
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="w-full max-w-md"
         >
-          <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 sm:p-10">
+          {/* Logo Area */}
+          <div className="text-center mb-8">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="w-16 h-16 bg-brand rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-brand/30"
+              transition={{ delay: 0.15, type: "spring", stiffness: 200, damping: 15 }}
+              className="w-20 h-20 mx-auto mb-5 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center shadow-2xl border border-white/20"
             >
-              <Dumbbell className="w-8 h-8 text-white" />
+              <Dumbbell className="w-10 h-10 text-white" />
             </motion.div>
+            <motion.h1
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+              className="text-4xl font-bold text-white tracking-tight"
+            >
+              FitNaija
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.35 }}
+              className="text-emerald-100/80 text-sm mt-1.5 font-medium"
+            >
+              Abuja&apos;s Elite Fitness Accountability
+            </motion.p>
+          </div>
 
-            <h1 className="text-3xl font-bold text-center text-text-dark mb-1">FitNaija</h1>
-            <p className="text-sm text-text-muted text-center mb-8">Abuja&apos;s Elite Fitness Accountability</p>
-
+          {/* Auth Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl shadow-emerald-900/30 p-8"
+          >
             <AnimatePresence mode="wait">
               {step === "phone" ? (
                 <motion.form
@@ -79,31 +113,31 @@ export default function LoginPage() {
                   className="space-y-5"
                 >
                   <div>
-                    <label className="text-xs uppercase font-bold tracking-wider text-text-muted block mb-2">
+                    <label className="text-xs uppercase font-bold tracking-wider text-slate-500 block mb-2">
                       Phone Number
                     </label>
-                    <div className="relative">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
+                    <div className="relative group">
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                       <input
                         type="tel"
                         value={phone}
                         onChange={e => setPhone(e.target.value)}
-                        placeholder="08012345678"
-                        className="w-full bg-bg-soft border border-border-light rounded-xl p-4 pl-12 text-sm font-semibold text-text-dark outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all"
+                        placeholder="080 1234 5678"
+                        className="input-field pl-12"
                         autoFocus
                       />
                     </div>
                   </div>
-                  {error && <p className="text-red-500 text-xs font-semibold">{error}</p>}
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-brand hover:bg-brand-hover text-white font-bold py-4 rounded-xl transition-all hover:-translate-y-0.5 shadow-lg shadow-brand/25 disabled:opacity-50 flex items-center justify-center gap-2"
-                  >
-                    {loading ? "Sending..." : "Send OTP"}
+                  {error && (
+                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-rose-500 text-xs font-semibold flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-rose-500 rounded-full" /> {error}
+                    </motion.p>
+                  )}
+                  <button type="submit" disabled={loading} className="btn-primary w-full py-3.5 text-sm">
+                    {loading ? "Sending OTP..." : "Continue with Phone"}
                     <ArrowRight className="w-4 h-4" />
                   </button>
-                  <p className="text-xs text-text-muted text-center">OTP via Termii SMS • Test code: 1234</p>
+                  <p className="text-xs text-slate-400 text-center">OTP via Termii SMS &bull; Test code: 1234</p>
                 </motion.form>
               ) : (
                 <motion.form
@@ -115,62 +149,70 @@ export default function LoginPage() {
                   className="space-y-5"
                 >
                   <div>
-                    <label className="text-xs uppercase font-bold tracking-wider text-text-muted block mb-2">
+                    <label className="text-xs uppercase font-bold tracking-wider text-slate-500 block mb-2">
                       Enter OTP Code
                     </label>
-                    <div className="relative">
-                      <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
+                    <div className="relative group">
+                      <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                       <input
                         type="text"
                         value={otp}
                         onChange={e => setOtp(e.target.value)}
-                        placeholder="123456"
+                        placeholder="000000"
                         maxLength={6}
-                        className="w-full bg-bg-soft border border-border-light rounded-xl p-4 pl-12 text-sm font-semibold text-text-dark outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-center text-2xl tracking-[0.5em]"
+                        className="input-field pl-12 text-center text-2xl tracking-[0.4em] font-mono"
                         autoFocus
                       />
                     </div>
                   </div>
-                  {error && <p className="text-red-500 text-xs font-semibold">{error}</p>}
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-brand hover:bg-brand-hover text-white font-bold py-4 rounded-xl transition-all hover:-translate-y-0.5 shadow-lg shadow-brand/25 disabled:opacity-50 flex items-center justify-center gap-2"
-                  >
+                  {error && (
+                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-rose-500 text-xs font-semibold flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-rose-500 rounded-full" /> {error}
+                    </motion.p>
+                  )}
+                  <button type="submit" disabled={loading} className="btn-primary w-full py-3.5 text-sm">
                     {loading ? "Verifying..." : "Verify & Enter"}
-                    <ArrowRight className="w-4 h-4" />
+                    <ChevronRight className="w-4 h-4" />
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => { setStep("phone"); setError(""); }}
-                    className="w-full text-xs text-text-muted hover:text-brand font-semibold transition-colors"
-                  >
+                  <button type="button" onClick={() => { setStep("phone"); setError(""); }} className="w-full text-xs text-slate-400 hover:text-emerald-600 font-semibold transition-colors">
                     Change phone number
                   </button>
                 </motion.form>
               )}
             </AnimatePresence>
-          </div>
+          </motion.div>
 
+          {/* Feature pills */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="grid grid-cols-3 gap-3 mt-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="flex justify-center gap-2 mt-6"
           >
-            {[
-              { icon: Sparkles, label: "AI Coach", desc: "Personal guidance" },
-              { icon: Shield, label: "Verified", desc: "Gemini proof checks" },
-              { icon: Users, label: "Community", desc: "Abuja network" },
-            ].map(({ icon: Icon, label, desc }) => (
-              <div key={label} className="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
-                <Icon className="w-5 h-5 text-white mx-auto mb-1" />
-                <div className="text-white text-xs font-bold">{label}</div>
-                <div className="text-white/70 text-[10px]">{desc}</div>
-              </div>
+            {features.map(({ icon: Icon, label, desc }, i) => (
+              <motion.div
+                key={label}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.55 + i * 0.08 }}
+                className="bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3 flex items-center gap-2.5 border border-white/10"
+              >
+                <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center">
+                  <Icon className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <div className="text-white text-xs font-bold">{label}</div>
+                  <div className="text-white/60 text-[10px]">{desc}</div>
+                </div>
+              </motion.div>
             ))}
           </motion.div>
         </motion.div>
+      </div>
+
+      {/* Footer */}
+      <div className="relative z-10 text-center pb-6">
+        <p className="text-emerald-200/50 text-xs font-medium">Powered by AI &bull; Built for Abuja</p>
       </div>
     </div>
   );

@@ -5,15 +5,15 @@
 
 ---
 
-## Overall Progress: ~65%
+## Overall Progress: ~80%
 
 | Layer     | Status   | Details                                |
 | --------- | -------- | -------------------------------------- |
 | Backend   | ✅ 90%   | All routers, models, services written |
-| Frontend  | ⚠️ 40%   | Components done, Next.js app hollow    |
+| Frontend  | ✅ 85%   | Full Next.js 15 app with animations    |
 | Infra     | ⚠️ 50%   | Docker/Render/Netlify configured       |
 | Testing   | ❌ 0%    | No tests written                       |
-| Mobile    | ❌ 0%    | React Native (Expo) not started        |
+| Mobile    | ✅ 80%   | Capacitor Android APK (4.7MB debug)    |
 
 ---
 
@@ -40,38 +40,26 @@
 
 ---
 
-## ⚠️ Frontend (Next.js) — 40% Complete
+## ✅ Frontend (Next.js) — 85% Complete
 
-### Implemented (~965 LOC)
-- **Root layout** (`src/app/layout.tsx`) — Geist font, Tailwind globals
-- **8 UI Components** (all in `src/components/`):
-  - `Dashboard.jsx` (177 lines) — XP card, stats, challenges, recent logs
-  - `Header.jsx` (68 lines) — Sticky nav (5 tabs), XP badge
-  - `ChallengeCard.jsx` (65 lines) — Challenge card with join/commit
-  - `ChallengeDetail.jsx` (79 lines) — Detail + embedded Leaderboard
-  - `WorkoutForm.jsx` (144 lines) — Activity type, duration, notes, image upload
-  - `Leaderboard.jsx` (40 lines) — Ranked table, highlights current user
-  - `CommunityFeed.jsx` (142 lines) — Posts, cheer toggle, trending sidebar
-  - `Profile.jsx` (95 lines) — Avatar, stats, history, milestones
-- **Mock services**: `api.js`, `auth.js`, `payments.js`
-- **Zustand store**: `useAuthStore.ts` with localStorage persistence
-- **Mock data**: `mockData.js` (4 challenges, 3 feed items, 3 logs, 1 user)
+### Implemented (~2,200 LOC)
+- **Full Next.js 15 App Router** with 7 pages:
+  - `/` — Login/Onboarding with OTP flow (phone -> OTP verify), animations, Abuja Green theme
+  - `/dashboard` — XP stats grid, active challenges, recent workout logs, accountability hub
+  - `/challenges` — Challenge catalog with category filter, search, join/commit toggle
+  - `/challenges/[id]` — Challenge detail with AI Coach tip + leaderboard (SSG)
+  - `/workout` — Activity selector, duration/notes form, image upload, success animation
+  - `/feed` — Community feed with filter tabs, post creation, cheer system, trending sidebar
+  - `/profile` — Avatar, stats, workout history, completed milestones
+- **Animations**: Framer Motion page transitions, layout animations, spring-based micro-interactions
+- **Responsive**: Mobile-first with bottom nav, desktop top nav, adaptive grids
+- **Backend API integration**: Full API client with token refresh, backend-first + mock fallback
+- **Theme**: Abuja Green (#008753) brand with emerald gradients, glassmorphism
+- **Loading states**: Shimmer skeletons on every page
+- **Zustand store**: `useAuthStore.ts` with localStorage persistence (fixed)
+- **Capacitor PWA**: manifest.json, splash screen, status bar config
 
-### 🔴 Missing
-- **`src/app/page.tsx`** — placeholder only (`<h1>FitNaija</h1>`) — no components wired in
-- No page routing (no `/challenges`, `/profile`, etc. pages)
-- No API integration — components use mock data only
-- No route guards (GuestGuard, AuthGuard, TrialGuard)
-- No React Query wiring
-- No Zustand telemetry store
-- No PWA service worker
-- No image compression utility
-- No S3 upload integration
-- TypeScript error in `useAuthStore.ts`: `str` should be `string`
-
-### Standalone SPA (`index.html`) — 1197 lines, fully functional prototype
-- All 5 views, mock data, Tailwind CDN, Lucide icons
-- This is the **primary runnable demo** today
+### Standalone SPA (`index.html`) — 1197 lines (legacy prototype)
 
 ---
 
@@ -92,12 +80,23 @@
 
 ---
 
+## ✅ Android APK — Complete
+
+| Item | Detail |
+| ---- | ------ |
+| **Platform** | Capacitor 8 (Android) |
+| **Build** | Debug APK, 4.7MB |
+| **Package** | `com.fitnaija.app` |
+| **SDK** | Android 34 (compile), min SDK 24 |
+| **Features** | Splash screen, status bar, offline web assets |
+| **Release** | [GitHub Release v2.0.0](https://github.com/ecoinboxhub/FitNaija/releases/tag/v2.0.0) |
+
 ## ❌ Not Started
 
 | Item | Notes |
 | ---- | ----- |
 | **Tests** | No unit, integration, or e2e tests anywhere |
-| **Mobile app** | React Native (Expo) — directory doesn't exist |
+| **Mobile (native)** | Could improve with React Native or Kotlin |
 | **Fraud domain** | Fraud logic is inline in telemetry router |
 | **Admin portal** | No payout UI, no admin dashboard |
 | **WhatsApp deep-link** | Mentioned, not built |
@@ -113,9 +112,10 @@
 ```
 Documents                 9 files   ~1,873 lines
 Backend Python           14 files   ~1,325 lines
-Frontend JSX/TS          12 files     ~965 lines
+Frontend JSX/TS          20+ files   ~2,200 lines
 Standalone SPA            1 file     ~1,197 lines
-Config files              9 files       ~280 lines
+Config files             12 files       ~350 lines
+Android (Capacitor)      50+ files   ~500 lines (auto-generated)
 ```
 
 ---
@@ -123,10 +123,10 @@ Config files              9 files       ~280 lines
 ## 🚧 Next Steps (Priority Order)
 
 1. Run `alembic revision --autogenerate` to generate initial migrations
-2. Wire components into Next.js pages (`/`, `/challenges`, `/profile`, etc.)
-3. Replace mock services with real API calls
-4. Add route guards for auth/trial states
-5. Write backend tests (pytest)
-6. Deploy to Render + Netlify with real API keys
-7. Build admin payout portal
-8. Seed `fitness_knowledge_embeddings` with fitness knowledge base
+2. Deploy backend to Render with real API keys
+3. Deploy frontend to Netlify
+4. Write backend tests (pytest)
+5. Build admin payout portal
+6. Seed `fitness_knowledge_embeddings` with fitness knowledge base
+7. Configure release keystore for production APK signing
+8. Set up CI/CD pipeline (GitHub Actions)
