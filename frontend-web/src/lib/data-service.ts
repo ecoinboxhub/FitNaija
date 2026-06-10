@@ -144,4 +144,7 @@ export const dataService = {
     if (otp !== '1234' && otp !== '123456') throw new Error('Invalid OTP');
     return { access_token: 'mock-token', refresh_token: 'mock-refresh', user: { id: '1', phone, display_name: 'Chidi A.', location: 'Maitama', bank_name: null, bank_account_number: null } };
   }),
+  googleSignIn: (idToken: string) => authService.googleSignIn(idToken).catch(() => {
+    return { access_token: 'mock-token', refresh_token: 'mock-refresh', status: 'trial_active' };
+  }),
 };

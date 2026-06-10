@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     TERMII_API_KEY: str = ""
     PAYSTACK_SECRET_KEY: str = ""
     REVENUECAT_API_KEY: str = ""
+    GOOGLE_CLIENT_ID: str = ""
 
     # Security
     JWT_SECRET_KEY: str = "supersecretkeychangeinproduction"

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Phone, KeyRound, ArrowRight, Dumbbell, Zap, Shield, Users, ChevronRight } from "lucide-react";
 import { dataService } from "@/lib/data-service";
+import { authService } from "@/lib/auth-service";
 
 const features = [
   { icon: Zap, label: "AI Coach", desc: "Smart training plans" },
@@ -32,6 +33,48 @@ export default function LoginPage() {
     } catch (err: any) { setError(err.message); }
     finally { setLoading(false); }
   };
+
+  const googleButtonRef = useRef<HTMLDivElement>(null);
+  const [googleReady, setGoogleReady] = useState(false);
+
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = () => setGoogleReady(true);
+    document.body.appendChild(script);
+    return () => { document.body.removeChild(script); };
+  }, []);
+
+  useEffect(() => {
+    if (!googleReady || !googleButtonRef.current || typeof window === "undefined") return;
+    const win = window as any;
+    if (!win.google?.accounts?.id) return;
+    win.google.accounts.id.initialize({
+      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "",
+      callback: async (response: any) => {
+        setLoading(true);
+        setError("");
+        try {
+          await authService.googleSignIn(response.credential);
+          router.push("/dashboard");
+        } catch (err: any) {
+          setError(err.message || "Google sign-in failed");
+        } finally {
+          setLoading(false);
+        }
+      },
+    });
+    win.google.accounts.id.renderButton(googleButtonRef.current, {
+      type: "standard",
+      shape: "pill",
+      theme: "outline",
+      text: "continue_with",
+      size: "large",
+      width: 320,
+    });
+  }, [googleReady, router]);
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,6 +223,22 @@ export default function LoginPage() {
                 </motion.form>
               )}
             </AnimatePresence>
+
+            {/* Divider */}
+            {step === "phone" && (
+              <div className="flex items-center gap-3 my-5">
+                <div className="flex-1 h-px bg-slate-200" />
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">or</span>
+                <div className="flex-1 h-px bg-slate-200" />
+              </div>
+            )}
+
+            {/* Google Sign-In */}
+            {step === "phone" && (
+              <div className="flex justify-center">
+                <div ref={googleButtonRef} className="min-h-[40px]" />
+              </div>
+            )}
           </motion.div>
 
           {/* Feature pills */}

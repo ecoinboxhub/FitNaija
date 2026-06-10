@@ -43,6 +43,13 @@ export const authService = {
     return api.post<UserProfile>('/users/profile', data);
   },
 
+  googleSignIn: async (idToken: string) => {
+    const data = await api.post<AuthResponse>('/auth/google', { id_token: idToken }, { skipAuth: true });
+    localStorage.setItem('fitnaija-access-token', data.access_token);
+    localStorage.setItem('fitnaija-refresh-token', data.refresh_token);
+    return data;
+  },
+
   logout: () => {
     localStorage.removeItem('fitnaija-access-token');
     localStorage.removeItem('fitnaija-refresh-token');

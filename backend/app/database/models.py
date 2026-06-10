@@ -19,6 +19,7 @@ class User(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     phone = Column(String(15), unique=True, nullable=False, index=True)
+    google_id = Column(String(100), unique=True, nullable=True, index=True)
     display_name = Column(String(100), nullable=True)
     location = Column(String(50), nullable=False) # Maps to LOCATION_TAXONOMY
     status = Column(

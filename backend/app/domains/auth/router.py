@@ -5,6 +5,8 @@ from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 import httpx
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
 from backend.app.database.session import get_db
 from backend.app.database.models import User
@@ -26,6 +28,9 @@ class VerifyOtpRequest(BaseModel):
 
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
+
+class GoogleAuthRequest(BaseModel):
+    id_token: str
 
 class TokenResponse(BaseModel):
     access_token: str
@@ -62,6 +67,73 @@ async def send_sms_via_termii(phone: str, otp: str):
     except Exception as e:
         logger.error(f"Failed to connect to Termii: {str(e)}")
     return False
+
+@router.post("/google", response_model=TokenResponse)
+async def google_auth(payload: GoogleAuthRequest, db: AsyncSession = Depends(get_db)):
+    if not settings.GOOGLE_CLIENT_ID:
+        raise HTTPException(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail="Google sign-in is not configured. Set GOOGLE_CLIENT_ID."
+        )
+    try:
+        info = id_token.verify_oauth2_token(
+            payload.id_token,
+            google_requests.Request(),
+            settings.GOOGLE_CLIENT_ID
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid Google ID token: {str(e)}"
+        )
+
+    google_id = info.get("sub")
+    email = info.get("email", "")
+    name = info.get("name", "")
+
+    if not google_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Google ID not found in token"
+        )
+
+    # Extract phone from Google profile if available, or leave empty
+    google_phone = info.get("phone_number", "")
+
+    result = await db.execute(select(User).filter(
+        (User.google_id == google_id) | (User.phone == google_phone)
+    ))
+    user = result.scalars().first()
+
+    if not user:
+        user = User(
+            google_id=google_id,
+            phone=google_phone or f"google_{google_id}",
+            display_name=name,
+            location="wuse",
+            status="trial_active",
+            trial_start=datetime.utcnow(),
+            trial_end=datetime.utcnow() + timedelta(days=30)
+        )
+        db.add(user)
+        await db.commit()
+        await db.refresh(user)
+    elif not user.google_id:
+        user.google_id = google_id
+        if name and not user.display_name:
+            user.display_name = name
+        await db.commit()
+        await db.refresh(user)
+
+    token_data = {"sub": str(user.id)}
+    access_token = create_access_token(data=token_data)
+    refresh_token = create_refresh_token(data=token_data)
+
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "status": user.status
+    }
 
 @router.post("/otp/send", status_code=status.HTTP_200_OK)
 async def send_otp(payload: SendOtpRequest):
