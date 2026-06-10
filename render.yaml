@@ -4,7 +4,7 @@ services:
     name: fitnaija-backend-api
     env: python
     buildCommand: pip install -r backend/requirements.txt
-    startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+    startCommand: bash start.sh
     envVars:
       - key: PORT
         value: 10000
@@ -20,6 +20,8 @@ services:
           property: connectionString
       - key: TARGET_ENV
         value: production
+      - key: JWT_SECRET_KEY
+        generateValue: true
       - key: GEMINI_API_KEY
         sync: false
       - key: GROQ_API_KEY

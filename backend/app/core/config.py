@@ -31,8 +31,12 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: List[str] = [
         "https://fitnaija.netlify.app",
         "https://main--fitnaija.netlify.app",
-        "http://localhost:3000", # Local Next.js dev server
+        "https://fitnaija.vercel.app",
+        "https://fitnaija-git-*.ecoinboxhub.vercel.app",
+        "http://localhost:3000",
         "http://localhost:5173",
+        "capacitor://localhost",
+        "https://localhost",
     ]
 
 settings = Settings()
