@@ -1,7 +1,8 @@
 # FitNaija — Implementation Status
 
 > **Project**: AI-Powered Fitness Challenge App (Abuja, Nigeria)  
-> **Updated**: 2026-06-10
+> **Updated**: 2026-06-10  
+> **Latest Release**: [v2.1.0](https://github.com/ecoinboxhub/FitNaija/releases/tag/v2.1.0)
 
 ---
 
@@ -40,26 +41,28 @@
 
 ---
 
-## ✅ Frontend (Next.js) — 85% Complete
+## ✅ Frontend (Next.js) — 90% Complete
 
-### Implemented (~2,200 LOC)
-- **Full Next.js 15 App Router** with 7 pages:
-  - `/` — Login/Onboarding with OTP flow (phone -> OTP verify), animations, Abuja Green theme
-  - `/dashboard` — XP stats grid, active challenges, recent workout logs, accountability hub
-  - `/challenges` — Challenge catalog with category filter, search, join/commit toggle
-  - `/challenges/[id]` — Challenge detail with AI Coach tip + leaderboard (SSG)
-  - `/workout` — Activity selector, duration/notes form, image upload, success animation
-  - `/feed` — Community feed with filter tabs, post creation, cheer system, trending sidebar
-  - `/profile` — Avatar, stats, workout history, completed milestones
-- **Animations**: Framer Motion page transitions, layout animations, spring-based micro-interactions
-- **Responsive**: Mobile-first with bottom nav, desktop top nav, adaptive grids
-- **Backend API integration**: Full API client with token refresh, backend-first + mock fallback
-- **Theme**: Abuja Green (#008753) brand with emerald gradients, glassmorphism
-- **Loading states**: Shimmer skeletons on every page
-- **Zustand store**: `useAuthStore.ts` with localStorage persistence (fixed)
-- **Capacitor PWA**: manifest.json, splash screen, status bar config
+### Implemented (~3,000 LOC)
+- **Full Next.js 15 App Router** with 7 premium pages:
+  - `/` — Login with gradient background, animated floating shapes, feature pills, smooth OTP flow
+  - `/dashboard` — Gradient hero welcome card, color-coded stat grid, community pulse sidebar
+  - `/challenges` — Category filter pills, search, difficulty badges, animated card hover
+  - `/challenges/[id]` — Leaderboard with position indicators, AI coach guidance card (SSG)
+  - `/workout` — Activity type cards with icons/descriptions, image preview with metadata
+  - `/feed` — Post composer, filter tabs, cheer with fill animation, trending challenge sidebar
+  - `/profile` — Badge avatar, gradient milestone cards, comprehensive stat blocks
+- **Premium Design System**: 
+  - Emerald-600 (#059669) brand with slate-800 text
+  - Glassmorphism (.glass), elevated cards (.card), badges, gradient utilities
+  - Custom CSS with animations (fade-in, slide-up, scale-in), shimmer skeletons
+  - Responsive breakpoints for mobile, tablet, desktop
+- **Animations**: Framer Motion spring transitions, stagger children, layout animations, tap feedback
+- **Backend API**: Full HTTP client with JWT token refresh + automatic mock fallback
+- **New Icons**: Custom SVG favicon, PWA icons (192+512), Android adaptive icon set
+- **Loading states**: Animated shimmer skeletons on every page
 
-### Standalone SPA (`index.html`) — 1197 lines (legacy prototype)
+### Standalone SPA (`index.html`) — legacy prototype
 
 ---
 
@@ -85,11 +88,12 @@
 | Item | Detail |
 | ---- | ------ |
 | **Platform** | Capacitor 8 (Android) |
-| **Build** | Debug APK, 4.7MB |
+| **Build** | Debug APK, ~4.7MB |
 | **Package** | `com.fitnaija.app` |
 | **SDK** | Android 34 (compile), min SDK 24 |
+| **Icons** | Custom adaptive icon (emerald bg + dumbbell/FN foreground) |
 | **Features** | Splash screen, status bar, offline web assets |
-| **Release** | [GitHub Release v2.0.0](https://github.com/ecoinboxhub/FitNaija/releases/tag/v2.0.0) |
+| **Release** | [GitHub Release v2.1.0](https://github.com/ecoinboxhub/FitNaija/releases/tag/v2.1.0) |
 
 ## ❌ Not Started
 
